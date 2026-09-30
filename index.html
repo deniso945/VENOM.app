@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VENOM</title>
+    <!-- Polices Google -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- VUE ACCUEIL -->
+    <div id="home-view">
+        <h1 class="main-title">VENOM</h1>
+        <p class="subtitle">Sélectionnez votre menu ci-dessous</p>
+
+        <button class="menu-btn btn-chocolat" onclick="openBook('chocolat')">
+            <div class="left-content">
+                <div class="dot dot-chocolat"></div>
+                <span>Commander menu 🍫</span>
+            </div>
+            <span>➔</span>
+        </button>
+
+        <button class="menu-btn btn-poudreux" onclick="openBook('poudreux')">
+            <div class="left-content">
+                <div class="dot dot-poudreux"></div>
+                <span>Commander menu poudreux ⏳</span>
+            </div>
+            <span>➔</span>
+        </button>
+
+        <button class="menu-btn btn-promo" onclick="openPromoView()">
+            <div class="left-content">
+                <div class="dot dot-promo"></div>
+                <span>Réductions 🏷️</span>
+            </div>
+            <span>➔</span>
+        </button>
+
+        <button class="menu-btn btn-admin" onclick="openAdminLogin()">
+            <div class="left-content">
+                <div class="dot dot-admin"></div>
+                <span>Admin ⚙️️</span>
+            </div>
+            <span>➔</span>
+        </button>
+    </div>
+
+    <!-- VUE CLIENT : CATALOGUE & FORMULAIRE -->
+    <div id="book-view">
+        <div class="book-header">
+            <button class="back-btn" onclick="closeBook()">← Retour</button>
+            <div class="menu-indicator" id="menu-indicator">MENU</div>
+        </div>
+        
+        <div id="pages-container">
+            <!-- Injecté dynamiquement par le script -->
+        </div>
+
+        <div class="book-controls" id="book-controls">
+            <button class="nav-btn" id="btn-prev" onclick="turnPage(-1)">Précédent</button>
+            <button class="nav-btn primary" id="btn-next" onclick="turnPage(1)">Suivant</button>
+        </div>
+    </div>
+
+    <!-- VUE CLIENT : RÉDUCTIONS -->
+    <div id="promo-client-view" style="display:none; padding: 20px; max-width: 500px; margin: 0 auto; width: 100%;">
+        <div class="book-header">
+            <button class="back-btn" onclick="closeBook()">← Retour</button>
+            <div class="menu-indicator">MES RÉDUCTIONS</div>
+        </div>
+        <div class="page active" style="position:relative; height:auto;">
+            <h2 class="section-title">Activer un code promo</h2>
+            <p class="product-desc" style="margin-bottom:15px;">Entrez le code communiqué pour l'appliquer à vos futures commandes.</p>
+            <input type="text" class="input-field" id="client-promo-input" placeholder="Ex: PROMO10">
+            <button class="submit-btn" onclick="clientApplyPromo()">ACTIVER LE CODE</button>
+            <div id="client-promo-msg" class="error-messages" style="color: var(--theme-color);"></div>
+
+            <div style="margin-top: 25px;">
+                <h3 class="section-title">Offre active actuelle</h3>
+                <div id="active-promo-display" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; margin-top: 10px; font-size: 14px; color: var(--text-muted);">
+                    Aucune offre active pour le moment.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VUE ADMIN : CONNEXION PIN -->
+    <div id="admin-login-view" style="display:none; padding: 40px 20px; max-width: 400px; margin: 0 auto; text-align: center;">
+        <h2 class="main-title" style="font-size: 24px;">ACCÈS ADMIN</h2>
+        <p class="subtitle">Entrez le code PIN à 6 chiffres</p>
+        <input type="password" id="admin-pin-input" maxlength="6" class="input-field" style="text-align: center; font-size: 24px; letter-spacing: 5px;" placeholder="••••••">
+        <button class="submit-btn" onclick="verifyAdminPin()">CONNEXION</button>
+        <button class="back-btn" style="margin-top: 15px; width: 100%;" onclick="closeBook()">Retour à l'accueil</button>
+        <div id="admin-login-error" class="error-messages"></div>
+    </div>
+
+    <!-- VUE ADMIN : DASHBOARD DE CONFIGURATION -->
+    <div id="admin-dashboard-view" style="display:none; padding: 20px; max-width: 500px; margin: 0 auto; width: 100%;">
+        <div class="book-header">
+            <button class="back-btn" onclick="closeBook()">Déconnexion</button>
+            <div class="menu-indicator" style="color: #ef4444;">PANEL ADMIN ⚙️</div>
+        </div>
+        
+        <div class="page active" style="position:relative; height:auto;">
+            <h2 class="section-title">Créer / Configurer une Offre</h2>
+            
+            <label style="font-size:12px; color:var(--text-muted);">Code Promo (ex: VIP50)</label>
+            <input type="text" class="input-field" id="adm-code" placeholder="Code unique">
+
+            <label style="font-size:12px; color:var(--text-muted);">Type de réduction</label>
+            <select class="input-field" id="adm-type">
+                <option value="percent">Réduction en Pourcentage (%)</option>
+                <option value="fixed">Réduction Fixe en €</option>
+                <option value="gift">Produit Offert / Cadeau</option>
+            </select>
+
+            <label style="font-size:12px; color:var(--text-muted);">Valeur (ex: 10 pour 10% ou 10€)</label>
+            <input type="number" class="input-field" id="adm-value" placeholder="Valeur">
+
+            <label style="font-size:12px; color:var(--text-muted);">Date et Heure exactes de fin</label>
+            <input type="datetime-local" class="input-field" id="adm-end-date">
+
+            <label style="font-size:12px; color:var(--text-muted);">Limite max de commandes (laisser vide si illimité par nombre)</label>
+            <input type="number" class="input-field" id="adm-max-uses" placeholder="Ex: 20 commandes max">
+
+            <h2 class="section-title" style="margin-top:20px;">Confirmation Sécurité</h2>
+            <label style="font-size:12px; color:var(--text-muted);">Entrez votre code à 4 chiffres pour confirmer le déploiement en direct :</label>
+            <input type="password" maxlength="4" class="input-field" id="adm-confirm-pin" placeholder="••••" style="text-align:center; letter-spacing:3px;">
+
+            <button class="submit-btn" style="background:#ef4444; color:white;" onclick="saveAdminPromo()">PUBLIER L'OFFRE EN TEMPS RÉEL</button>
+            <div id="adm-error" class="error-messages"></div>
+
+            <div style="margin-top: 30px;">
+                <h3 class="section-title">Offre actuellement enregistrée</h3>
+                <div id="adm-current-status" style="background: rgba(0,0,0,0.4); padding: 15px; border-radius: 10px; font-size: 13px; color: var(--text-muted);">
+                    Aucune offre active configurée.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
